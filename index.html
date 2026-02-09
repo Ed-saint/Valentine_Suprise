@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Veux-tu être ma Valentine ?</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-color: #ffebee;
+            overflow: hidden;
+        }
+        h1 { color: #d32f2f; }
+        .buttons { position: relative; width: 300px; height: 100px; }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        #btn-oui { background-color: #4caf50; color: white; margin-right: 20px; }
+        #btn-non {
+            background-color: #f44336;
+            color: white;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Veux-tu être ma Valentine ? ❤️</h1>
+
+    <div class="buttons">
+        <button id="btn-oui" onclick="reponseOui()">Oui</button>
+        <button id="btn-non" onmouseover="fuir()">Non</button>
+    </div>
+
+    <script>
+        function fuir() {
+            const btnNon = document.getElementById('btn-non');
+            // Calcul de positions aléatoires
+            const x = Math.random() * (window.innerWidth - btnNon.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btnNon.offsetHeight);
+            
+            btnNon.style.left = x + 'px';
+            btnNon.style.top = y + 'px';
+        }
+
+        function reponseOui() {
+            alert("Merci de votre attention sur le sujet... Je t'aime ! ❤️");
+            // Tu peux aussi rediriger vers une image ou une musique
+            // window.location.href = "https://lien-vers-une-photo-de-vous.com";
+        }
+    </script>
+
+</body>
+</html>
