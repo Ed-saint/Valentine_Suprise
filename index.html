@@ -3,156 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Une question importante...</title>
+    <title>Alerte Système - Action requise</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh; /* Changé height en min-height pour le scrolling si besoin à la fin */
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            overflow: hidden; /* Empêche les barres de défilement quand le bouton bouge */
-        }
-
-        h1 {
-            color: #d81b60;
-            font-size: 2.5rem;
+            background-color: #fff5f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
             text-align: center;
-            margin-bottom: 10px;
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            color: #888;
+        h1 { color: #d32f2f; margin-bottom: 20px; }
+
+        .message-securite {
             margin-bottom: 40px;
-            font-style: italic;
-            height: 20px; /* Pour éviter que ça saute */
+            line-height: 1.6;
+            padding: 0 20px; /* Un peu de marge sur mobile */
         }
-
-        .container {
-            position: relative;
-            width: 100%;
-            height: 200px;
+        .line-1 {
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: block;
+        }
+        .line-2 {
+            color: #888;
+            font-style: italic;
+            font-size: 0.95rem;
+            display: block;
+        }
+        
+        .button-group {
             display: flex;
+            gap: 20px;
             justify-content: center;
             align-items: center;
+            position: relative;
+            width: 100%;
+            height: 100px;
         }
 
         button {
-            padding: 15px 30px;
+            padding: 15px 35px;
             font-size: 1.2rem;
             border: none;
-            border-radius: 50px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute; /* Important pour le mouvement */
+            transition: transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-weight: bold;
         }
 
         #btn-oui {
             background-color: #4caf50;
             color: white;
-            z-index: 10; /* Le OUI doit passer par-dessus le NON si ça grandit trop */
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-            /* On le centre initialement */
-            transform: translateX(-80px); 
+            z-index: 1000;
         }
 
         #btn-non {
-            background-color: #ef5350;
+            background-color: #f44336;
             color: white;
-            box-shadow: 0 4px 15px rgba(239, 83, 80, 0.4);
-            transform: translateX(80px); /* Décalé vers la droite */
         }
 
+        /* Style pour les images finales */
+        .final-gif {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 80%; /* Pour que ça ne dépasse pas sur mobile */
+        }
     </style>
 </head>
 <body>
 
     <h1>Veux-tu être ma Valentine ? ❤️</h1>
-    <p class="subtitle" id="message-dare">(Je t'ose de cliquer sur le non...)</p>
 
-    <div class="container">
-        <button id="btn-oui" onclick="reponseOui()">OUI</button>
+    <div class="message-securite">
+        <span class="line-1">⚠️ Le NON a été désactivé pour votre sécurité</span>
+        <span class="line-2">Mais vous pouvez toujours oser</span>
+    </div>
+
+    <div class="button-group">
+        <button id="btn-oui" onclick="accepter()">OUI</button>
         <button id="btn-non" onmouseover="fuir()">NON</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
     <script>
-        let scaleFactor = 1;
-        
-        // --- CONFIGURATION DISCORD (OPTIONNEL) ---
-        // 1. Crée un serveur Discord (ou utilise un existant)
-        // 2. Va dans Paramètres du serveur > Intégrations > Webhooks
-        // 3. Crée un Webhook, copie l'URL et colle-la ci-dessous entre les guillemets.
-        const DISCORD_WEBHOOK_URL = ""; 
+        let scale = 1;
+		const soundEffect = new Audio('https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3');
+		const kissGifUrl = "bisous.gif";
 
         function fuir() {
-            const btnNon = document.getElementById('btn-non');
-            const btnOui = document.getElementById('btn-oui');
-            const message = document.getElementById('message-dare');
+            const non = document.getElementById('btn-non');
+            const oui = document.getElementById('btn-oui');
 
-            // 1. Déplacer le bouton NON aléatoirement
-            // On utilise window.innerWidth pour s'assurer qu'il reste dans l'écran visible
-            const x = Math.random() * (window.innerWidth - 200); // Marge de sécurité
-            const y = Math.random() * (window.innerHeight - 200);
+            non.style.position = 'fixed';
+            // Marge de sécurité de 100px pour éviter qu'il sorte trop de l'écran
+            const x = Math.random() * (window.innerWidth - non.offsetWidth - 100);
+            const y = Math.random() * (window.innerHeight - non.offsetHeight - 100);
             
-            // On applique la nouvelle position. 'fixed' permet de le placer n'importe où sur l'écran
-            btnNon.style.position = 'fixed';
-            btnNon.style.left = x + 'px';
-            btnNon.style.top = y + 'px';
+            non.style.left = x + 'px';
+            non.style.top = y + 'px';
 
-            // 2. Faire grandir le bouton OUI
-            scaleFactor += 0.5; // On augmente la taille de 50% à chaque fois
-            btnOui.style.transform = `scale(${scaleFactor})`;
-
-            // 3. Changer le message (optionnel, pour la narguer)
-            const phrases = [
-                "(Je t'ose de cliquer sur le non...)",
-                "(Tu ne m'auras pas !)",
-                "(Allez, clique sur OUI !)",
-                "(Le bouton rouge est interdit !)"
-            ];
-            // Choisir une phrase aléatoire
-            message.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+            scale += 0.4; 
+            oui.style.transform = `scale(${scale})`;
         }
 
-        function reponseOui() {
-            // 1. Lancer les confettis
-            confetti();
+        function accepter() {
+            soundEffect.play();
 
-            // 2. Feedback visuel pour elle
-            alert("Merci de ton attention sur le sujet... Je t'aime ! ❤️");
-            
-            // 3. Feedback pour TOI (Envoie la notif sur Discord)
-            envoyerNotificationDiscord();
-
-            // 4. (Option de secours) Ouvre WhatsApp pour qu'elle te confirme
-            // Decommente la ligne ci-dessous et mets ton numéro si tu ne veux pas utiliser Discord
-            // window.location.href = "https://wa.me/15140000000?text=J'ai%20dit%20OUI%20!%20❤️";
-        }
-
-        function envoyerNotificationDiscord() {
-            if (DISCORD_WEBHOOK_URL === "") return; // Si pas configuré, on ne fait rien
-
-            const payload = {
-                content: "🚨 **ALERTE AMOUR !** 🚨\nElle a dit **OUI** ! Prépare le resto ! 🥂❤️"
-            };
-
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            }).then(response => {
-                console.log("Notif envoyée !");
-            }).catch(error => {
-                console.error("Erreur d'envoi", error);
-            });
+            // On change le contenu de la page et on autorise le défilement (overflow: auto)
+            document.body.style.overflow = "auto"; 
+            document.body.innerHTML = `
+                <div style="padding: 30px 20px; display: flex; flex-direction: column; align-items: center;">
+                    <h1 style="font-size: 2.5rem; color: #d32f2f; margin-bottom: 10px;">C'est noté ! 🥰</h1>
+                    <p style="font-size: 1.3rem; color: #555; margin-bottom: 30px;">Préparez vous pour notre premier Saint-Valentin ensemble ❤️</p>
+                    
+                    <img src="${kissGifUrl}" width="280" class="final-gif">
+                </div>
+            `;
         }
     </script>
-
 </body>
 </html>
