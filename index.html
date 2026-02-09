@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Veux-tu être ma Valentine ?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Une question importante...</title>
     <style>
         body {
             display: flex;
@@ -10,52 +11,146 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            margin: 0;
             font-family: 'Arial', sans-serif;
-            background-color: #ffebee;
-            overflow: hidden;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            overflow: hidden; /* Empêche les barres de défilement quand le bouton bouge */
         }
-        h1 { color: #d32f2f; }
-        .buttons { position: relative; width: 300px; height: 100px; }
+
+        h1 {
+            color: #d81b60;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 40px;
+            font-style: italic;
+            height: 20px; /* Pour éviter que ça saute */
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         button {
             padding: 15px 30px;
-            font-size: 18px;
-            cursor: pointer;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 10px;
-            transition: 0.2s;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute; /* Important pour le mouvement */
         }
-        #btn-oui { background-color: #4caf50; color: white; margin-right: 20px; }
-        #btn-non {
-            background-color: #f44336;
+
+        #btn-oui {
+            background-color: #4caf50;
             color: white;
-            position: absolute;
+            z-index: 10; /* Le OUI doit passer par-dessus le NON si ça grandit trop */
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            /* On le centre initialement */
+            transform: translateX(-80px); 
         }
+
+        #btn-non {
+            background-color: #ef5350;
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 83, 80, 0.4);
+            transform: translateX(80px); /* Décalé vers la droite */
+        }
+
     </style>
 </head>
 <body>
 
     <h1>Veux-tu être ma Valentine ? ❤️</h1>
+    <p class="subtitle" id="message-dare">(Je t'ose de cliquer sur le non...)</p>
 
-    <div class="buttons">
-        <button id="btn-oui" onclick="reponseOui()">Oui</button>
-        <button id="btn-non" onmouseover="fuir()">Non</button>
+    <div class="container">
+        <button id="btn-oui" onclick="reponseOui()">OUI</button>
+        <button id="btn-non" onmouseover="fuir()">NON</button>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <script>
+        let scaleFactor = 1;
+        
+        // --- CONFIGURATION DISCORD (OPTIONNEL) ---
+        // 1. Crée un serveur Discord (ou utilise un existant)
+        // 2. Va dans Paramètres du serveur > Intégrations > Webhooks
+        // 3. Crée un Webhook, copie l'URL et colle-la ci-dessous entre les guillemets.
+        const DISCORD_WEBHOOK_URL = ""; 
+
         function fuir() {
             const btnNon = document.getElementById('btn-non');
-            // Calcul de positions aléatoires
-            const x = Math.random() * (window.innerWidth - btnNon.offsetWidth);
-            const y = Math.random() * (window.innerHeight - btnNon.offsetHeight);
+            const btnOui = document.getElementById('btn-oui');
+            const message = document.getElementById('message-dare');
+
+            // 1. Déplacer le bouton NON aléatoirement
+            // On utilise window.innerWidth pour s'assurer qu'il reste dans l'écran visible
+            const x = Math.random() * (window.innerWidth - 200); // Marge de sécurité
+            const y = Math.random() * (window.innerHeight - 200);
             
+            // On applique la nouvelle position. 'fixed' permet de le placer n'importe où sur l'écran
+            btnNon.style.position = 'fixed';
             btnNon.style.left = x + 'px';
             btnNon.style.top = y + 'px';
+
+            // 2. Faire grandir le bouton OUI
+            scaleFactor += 0.5; // On augmente la taille de 50% à chaque fois
+            btnOui.style.transform = `scale(${scaleFactor})`;
+
+            // 3. Changer le message (optionnel, pour la narguer)
+            const phrases = [
+                "(Je t'ose de cliquer sur le non...)",
+                "(Tu ne m'auras pas !)",
+                "(Allez, clique sur OUI !)",
+                "(Le bouton rouge est interdit !)"
+            ];
+            // Choisir une phrase aléatoire
+            message.innerText = phrases[Math.floor(Math.random() * phrases.length)];
         }
 
         function reponseOui() {
-            alert("Merci de votre attention sur le sujet... Je t'aime ! ❤️");
-            // Tu peux aussi rediriger vers une image ou une musique
-            // window.location.href = "https://lien-vers-une-photo-de-vous.com";
+            // 1. Lancer les confettis
+            confetti();
+
+            // 2. Feedback visuel pour elle
+            alert("Merci de ton attention sur le sujet... Je t'aime ! ❤️");
+            
+            // 3. Feedback pour TOI (Envoie la notif sur Discord)
+            envoyerNotificationDiscord();
+
+            // 4. (Option de secours) Ouvre WhatsApp pour qu'elle te confirme
+            // Decommente la ligne ci-dessous et mets ton numéro si tu ne veux pas utiliser Discord
+            // window.location.href = "https://wa.me/15140000000?text=J'ai%20dit%20OUI%20!%20❤️";
+        }
+
+        function envoyerNotificationDiscord() {
+            if (DISCORD_WEBHOOK_URL === "") return; // Si pas configuré, on ne fait rien
+
+            const payload = {
+                content: "🚨 **ALERTE AMOUR !** 🚨\nElle a dit **OUI** ! Prépare le resto ! 🥂❤️"
+            };
+
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(response => {
+                console.log("Notif envoyée !");
+            }).catch(error => {
+                console.error("Erreur d'envoi", error);
+            });
         }
     </script>
 
